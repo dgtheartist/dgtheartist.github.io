@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="description" content="DGCubes is a YouTube channel dedicated to speedsolving the Rubik's Cube, which features entertainment videos, reviews, unboxings, and a bunch of other types of videos! On this website, you can check out my PBs, mains, averages, and more.">
+		<meta name="keywords" content="Cubing,Rubik's Cube,Speedcubing,Speedsolving,Rubik's,Rubix,DGCubes,Cube,Daniel Goodman,Cuber,Speedcuber,YouTube">
+		<meta name="author" content="Daniel Goodman">
+		<title>Username Leaderboard</title>
+
+		<!-- Bootstrap core CSS -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		
+		<!-- Custom styles for this template -->
+		<link href="https://getbootstrap.com/docs/4.5/examples/navbar-fixed/navbar-top-fixed.css" rel="stylesheet">
+
+		<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+		<script type="text/javascript">
+			var data;
+			google.load("visualization", "1", {packages:["corechart"]});
+			google.setOnLoadCallback(drawSheetName);
+
+			var set = 0; // Represents the set of 46 usernames to be displayed - set 0 refers to the top 42 usernames
+			var interval = setInterval(showData, 3000); // Iterate through sets every 3 seconds
+
+			function drawSheetName() {
+				//Selects the columns to be extracted
+				var queryString = encodeURIComponent('SELECT A, B');
+
+				var query = new google.visualization.Query('https://docs.google.com/spreadsheets/d/1kxgdBNJUFhHDwA9p39jqCnh7gy8bWf7YAzAmpo4Nimk/gviz/tq?gid=0&headers=1&tq=' + queryString); 
+				query.send(handleQueryResponse);
+			}
+
+			function handleQueryResponse(response) {
+				data = response.getDataTable();
+				data.sort({column: 1, desc:true});
+				showData();
+			}
+
+			function showData() {
+				var num_rows = data.getNumberOfRows();
+
+				var e1 = document.getElementById("usernamelist1");
+				var e2 = document.getElementById("usernamelist2");
+				var e3 = document.getElementById("usernamelist3");
+
+				e1.innerHTML = "";
+				e2.innerHTML = "";
+				e3.innerHTML = "";
+				for (let i = 0; i < 46; i+=1) {
+					let cur = set * 46 + i;
+					if (cur < num_rows) {
+						if (i % 46 < 10) {
+							e1.innerHTML += "<b>" + (cur + 1) + ". </b>" + data.getValue(cur, 0) + " - " + data.getValue(cur, 1) + "/10<br/>";
+						} else if (i % 46 < 28) {
+							e2.innerHTML += "<b>" + (cur + 1) + ". </b>" + data.getValue(cur, 0) + " - " + data.getValue(cur, 1) + "/10<br/>";
+						} else {
+							e3.innerHTML += "<b>" + (cur + 1) + ". </b>" + data.getValue(cur, 0) + " - " + data.getValue(cur, 1) + "/10<br/>";
+						}
+					}
+				}
+
+				set += 1;
+				if (set * 42 > num_rows) set = 0;
+			}
+		</script>
+
+	</head>
+
+	<body>
+		<main role="main">
+			<div class="row">
+				<div class="col-12 text-center">
+					<h1>Username Leaderboard&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="small">!leaderboard</span></h1>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-5" style="padding-left:20px;padding-right:0px;">
+					<span id="usernamelist1"></span>
+				</div>
+				<div class="col-4" style="padding-left:0px;padding-right:0px;">
+					<span id="usernamelist2"></span>
+				</div>
+				<div class="col-3" style="padding-left:0px;padding-right:0px;">
+					<span id="usernamelist3"></span>
+				</div>
+			</div>
+		</main>
+
+		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+		<script>window.jQuery || document.write('<script src="/docs/4.5/assets/js/vendor/jquery.slim.min.js"><\/script>')</script><script src="https://getbootstrap.com/docs/4.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-1CmrxMRARb6aLqgBO7yyAxTOQE2AKb9GfXnEo760AUcUmFx3ibVJJAzGytlQcNXd" crossorigin="anonymous"></script>
+	</body>
+</html>
