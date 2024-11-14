@@ -87,26 +87,27 @@
 				}
 			});
 
+			// Highlight current page section in navbar
 			document.addEventListener("DOMContentLoaded", function() {
-  const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
-  const sections = Array.from(navLinks).map(link => document.querySelector(link.getAttribute("href")));
+				const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
+				const sections = Array.from(navLinks).map(link => document.querySelector(link.getAttribute("href")));
 
-  function updateActiveLink() {
-    let index = sections.length;
+				function updateActiveLink() {
+					let index = sections.length;
 
-    // Find the section that is in view
-    while (--index && window.scrollY + window.innerHeight / 2 < sections[index].offsetTop) {}
+					// Find the section that is in view
+					while (--index && window.scrollY + window.innerHeight / 2 < sections[index].offsetTop) {}
 
-    // Remove 'active' class from all links
-    navLinks.forEach(link => link.classList.remove("active"));
+					// Remove 'active' class from all links
+					navLinks.forEach(link => link.classList.remove("active"));
 
-    // Add 'active' class to the current link
-    navLinks[index].classList.add("active");
-  }
+					// Add 'active' class to the current link
+					navLinks[index].classList.add("active");
+				}
 
-  window.addEventListener("scroll", updateActiveLink);
-  updateActiveLink(); // Run on load to highlight the current section
-});
+				window.addEventListener("scroll", updateActiveLink);
+				updateActiveLink(); // Run on load to highlight the current section
+			});
 
 		</script>
 
@@ -153,6 +154,10 @@
 				color: black;
 				font-weight: 600;
 				font-size: large;
+			}
+
+			.navbar-nav .nav-link.active {
+				font-weight: bold;
 			}
 
 			/* For larger screens: scale the image proportionally and expand the row height */
