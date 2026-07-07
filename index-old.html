@@ -13,9 +13,6 @@
 		<!-- Bootstrap core CSS -->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-		<!-- Font Awesome for icons -->
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
 		<!-- Bootstrap JS -->
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
@@ -31,6 +28,13 @@
 		<link href="static/css/navbar-footer.css" rel="stylesheet">
 
 		<script>
+			$(function () {
+				$(document).scroll(function () {
+					var $nav = $(".fixed-top");
+					$nav.toggleClass('scrolled', $(this).scrollTop() > $nav.height());
+				});
+			});
+
 			// Fade each page section in and out
 			document.addEventListener("DOMContentLoaded", function() {
 				const elements = document.querySelectorAll(".fade-in-element");
@@ -71,40 +75,40 @@
 				fadeInOnScroll();
 			});
 
-			document.addEventListener("DOMContentLoaded", function () {
-				const navbar = document.getElementById("navbar");
-				const logo = document.getElementById("nav-signature");
-				const about = document.getElementById("about");
+			// The navbar resizes responsively
+			// Make sure body padding adjusts appropriately so top of body isn't hidden
+			document.addEventListener("DOMContentLoaded", function() {
+				adjustBodyPadding();
+				window.addEventListener("resize", adjustBodyPadding);
 
-				const maxLogoHeight = 150;
-				const minLogoHeight = 90;
+				function adjustBodyPadding() {
+					const navbarHeight = document.getElementById("navbar").offsetHeight;
+					document.body.style.paddingTop = navbarHeight + "px";
+				}
+			});
 
-				function updateNavbar() {
-					// Amount of scrolling through the About section
-					const progress = Math.min(Math.max(window.scrollY / about.offsetHeight, 0), 1);
+			// Highlight current page section in navbar
+			document.addEventListener("DOMContentLoaded", function() {
+				const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
+				const sections = Array.from(navLinks).map(link => document.querySelector(link.getAttribute("href")));
 
-					// Smooth interpolation
-					const logoHeight = maxLogoHeight - (maxLogoHeight - minLogoHeight) * progress;
-					logo.style.height = logoHeight + "px";
+				function updateActiveLink() {
+					let index = sections.length;
 
-					// Reduce vertical padding as logo shrinks
-					const padding = 24 - progress * 14;
+					// Find the section that is in view
+					while (--index && window.scrollY + window.innerHeight / 2 < sections[index].offsetTop) {}
 
-					navbar.style.paddingTop = padding + "px";
-					navbar.style.paddingBottom = padding + "px";
+					// Remove 'active' class from all links
+					navLinks.forEach(link => link.classList.remove("active"));
 
-					// Set height of navbar now that it's updated
-					document.documentElement.style.setProperty("--navbar-height", (navbar.offsetHeight + 20) + "px");
-
-					// Keep page content below navbar
-					document.body.style.paddingTop = navbar.offsetHeight + "px";
+					// Add 'active' class to the current link
+					navLinks[index].classList.add("active");
 				}
 
-				window.addEventListener("scroll", updateNavbar);
-				window.addEventListener("resize", updateNavbar);
-
-				updateNavbar();
+				window.addEventListener("scroll", updateActiveLink);
+				updateActiveLink(); // Run on load to highlight the current section
 			});
+
 		</script>
 
 		<style>
@@ -115,33 +119,18 @@
 
 			body {
 				overflow-x: hidden;
-				background-color: #111111;
 			}
 
 			a {
 				text-decoration: none;
-				color: #4DEEEA;
-			}
-
-			a:hover {
-				color: #4DEEEA;
-			}
-
-			h1 {
-				color: white;
-			}
-
-			h4 {
-				color: white;
 			}
 
 			.release {
 				transition: background-color 0.5s, opacity 0.8s ease-out, transform 0.8s ease-out;
-				background-color: #262626;
 			}
 
 			.release:hover {
-				background-color: #303030;
+				background-color: #cccccc;
 			}
 
 			@font-face {
@@ -185,7 +174,7 @@
 			}
 
 			.anchor {
-				scroll-margin-top: var(--navbar-height, 132px);
+				scroll-margin-top: 132px;
 			}
 
 			.display-1 {
@@ -223,23 +212,9 @@
 
 			/* Fix issue where navbar wasn't sticky on mobile */
 			#navbar {
-				background: black !important;
-				transition: padding 0.15s linear;
-			}
-
-			#navbar .social-icons {
-				position: absolute;
-				top: 20px;
-				right: 30px;
-			}
-
-			#nav-signature {
-				height: 150px;
-				transition: none;
-			}
-
-			.lead {
-				color: white;
+				position: fixed;
+				top: 0;
+				width: 100%;
 			}
 		</style>
 	</head>
@@ -247,52 +222,62 @@
 	<body>
 
 		<!-- Navbar common to all pages -->
-		<nav class="navbar navbar-expand-md navbar-light fixed-top" id="navbar">
-
-			<!-- Social icons -->
-			<div class="social-icons">
-				<a href="https://instagram.com/theartistdg" target="_blank" class="text-white mx-2">
-					<i class="fab fa-instagram fa-lg"></i>
-				</a>
-
-				<a href="https://youtube.com/@DGtheArtist" target="_blank" class="text-white mx-2">
-					<i class="fab fa-youtube fa-lg"></i>
-				</a>
-
-				<a href="https://open.spotify.com/artist/2JAYeInLHFc20FeZ5eFNyY" target="_blank" class="text-white mx-2">
-					<i class="fab fa-spotify fa-lg"></i>
-				</a>
+		<nav class="navbar navbar-expand-md navbar-light sticky-top" style="background-color: #d28fba;" id="navbar">
+			<div class="d-flex align-items-center">
+				<img src="static/img/cover-art/hello-world.jpg" class="img-fluid" style="height: 100px;">
+				<h1 class="main-header display-1 mb-0 ml-3">DG the Artist</h1>
 			</div>
-
-			<div class="d-flex flex-column align-items-center w-100 py-2">
-				<a href="#"><img src="static/img/dg-signature-white.png" id="nav-signature" class="img-fluid mb-4"></a>
-				<div class="d-flex justify-content-center" style="font-family: myriad-pro-bi;">
-					<div class="px-5"><a href="#music" class="text-white text-decoration-none">songs</a></div>
-					<div class="px-5"><a href="#live" class="text-white text-decoration-none">shows</a></div>
-					<div class="px-5"><a href="#gallery" class="text-white text-decoration-none">gallery</a></div>
-				</div>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse h-100" id="navbarCollapse">
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item px-4">
+						<a href="https://www.instagram.com/theartistdg" target="_blank"><img src="static/img/instagram.png" style="height:30px;"></a>
+					</li>
+					<li class="nav-item pr-4">
+						<a href="https://open.spotify.com/artist/2JAYeInLHFc20FeZ5eFNyY" target="_blank"><img src="static/img/spotify.png" style="height:30px;"></a>
+					</li>
+					<li class="nav-item pr-4">
+						<a href="https://www.youtube.com/DGtheArtist" target="_blank"><img src="static/img/youtube.png" style="height:30px;"></a>
+					</li>
+					<li class="nav-item px-2 border-left">
+						<a class="nav-link" href="#about">About</a>
+					</li>
+					<li class="nav-item px-2 border-left">
+						<a class="nav-link" href="#music">Music</a>
+					</li>
+					<li class="nav-item px-2 border-left">
+						<a class="nav-link" href="#live">Live</a>
+					</li>
+					<li class="nav-item px-2 border-left">
+						<a class="nav-link" href="#contact">Contact</a>
+					</li>
+				</ul>
 			</div>
 		</nav>
 
 		<main role="main" class="container-fluid" data-bs-spy="scroll" data-bs-target="navbar">
 
-			<div id="about" class="row text-center align-top mb-5 anchor" style="background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('static/img/main-image.jpg'); background-size: cover; background-position: 55% 10%; background-repeat: no-repeat;">
-				<div class="col-5 pl-4 pr-4">
+			<div id="about" class="row text-center align-top mb-5 border-bottom anchor" style="background-color: #89557f50;">
+				<div class="col-md-5 col-7 pl-4 pr-4">
 					<h1 class="sub-header display-4 my-4">About</h1>
-					<p class="lead text-left my-4"><strong>DG the Artist</strong> is a DMV-based rapper and hyperpop artist known for his electrifying stage presence, his wholesome but existential lyrics, and his raw energy that shines through on every track. Originally renowned for his world-class Rubik's Cube speedsolving and YouTube content under the name DGCubes, he now brings the same dedication and passion to music that he was known for in the cubing world.</p>
-					<p class="lead text-left my-4">His music tackles themes from his struggles with OCD to his strong stance on veganism. After the success of his 2025 album <strong>You Deserve The World</strong>, DG pivoted hard, quitting his software engineering job to pursue a career in music full-time. In 2026, he released his debut EP as a full-time rapper, <strong>I QUIT MY DAY JOB</strong>, which he describes as a celebration of his exit from the corporate world.</p>
-					<p class="lead text-left my-4">With the help of his devoted fanbase online and in-person, DG is making his dreams come true, performing across the country from Washington DC to Washington state. Wherever you find DG the Artist, he'll make sure you know that You Deserve The World.</p>
+					<p class="lead text-left my-4">Born in New Jersey and based outside <strong>Washington DC</strong>, DG the Artist is a <strong>rapper and hyperpop artist</strong> with a deep passion for his craft. Previously known for his world-class Rubik's Cube speedsolving and YouTube content under the name DGCubes, he now brings the same level of dedication to music that he was known for in the cubing world.</p>
+					<p class="lead text-left my-4">DG's unique ability to navigate many genres and styles sets him apart from his contemporaries. Across his three albums <strong>"You Deserve The World" (2025)</strong>, <strong>"Ego Death" (2023)</strong>, and <strong>"Hello World" (2022)</strong>, DG masterfully executes high-energy tracks that put his positive attitude and love of life at the forefront, as well as introspective tracks that cover topics from his struggles with OCD to his decision to go vegan. Regardless of genre, you can feel DG's raw energy and emotion at the center of every track.</p>
+					<p class="lead text-left my-4">With the help of his devoted fanbase in the DMV area and his success on <a href="https://youtube.com/DGtheArtist" target="_blank">YouTube</a>, DG is making his dreams come true, performing for energetic crowds across the country. Wherever you find DG in 2026, he'll make sure you know that You Deserve The World.
 				</div>
-				<div class="col-7 position-relative"></div>
+				<div class="col-md-7 col-5 pr-0 position-relative overflow-hidden">
+					<img src="static/img/dg-the-artist.png" class="img-fluid h-100 w-100" style="object-fit: cover; object-position: center;" id="about-img">
+				</div>
 			</div>
 
-			<div id="music" class="fade-in-element anchor mb-5 pb-2" style="background-color: #111111">
+			<div id="music" class="fade-in-element anchor mb-5 pb-2">
 
-				<div class="container mt-3 pb-3">
+				<div class="container mt-3 pb-3 border-bottom">
 					
 					<h1 class="sub-header display-4 mb-5">Music</h1>
 
-					<div class="release release-odd row text-center align-middle py-4 my-2 rounded">
+					<div class="release release-odd row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://hyperfollow.com/dgtheartist/i-quit-my-day-job" target="_blank">
 								<img src="static/img/cover-art/i-quit-my-day-job.jpg" class="img-fluid">
@@ -307,7 +292,7 @@
 						</div>
 					</div>
 
-					<div class="release release-even row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-even row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://hyperfollow.com/dgtheartist/i-dont-want-potential" target="_blank">
 								<img src="static/img/cover-art/i-dont-want-potential.jpg" class="img-fluid">
@@ -322,7 +307,7 @@
 						</div>
 					</div>
 
-					<div class="release release-odd row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-odd row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://hyperfollow.com/dgtheartist/ph-quc" target="_blank">
 								<img src="static/img/cover-art/phu-quoc.jpg" class="img-fluid">
@@ -337,7 +322,7 @@
 						</div>
 					</div>
 
-					<div class="release release-even row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-even row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://hyperfollow.com/dgtheartist/you-deserve-the-world" target="_blank">
 								<img src="static/img/cover-art/you-deserve-the-world.jpg" class="img-fluid">
@@ -352,7 +337,7 @@
 						</div>
 					</div>
 
-					<div class="release release-odd row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-odd row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://hyperfollow.com/dgtheartist/what-do-you-want" target="_blank">
 								<img src="static/img/cover-art/what-do-you-want.jpg" class="img-fluid">
@@ -367,7 +352,7 @@
 						</div>
 					</div>
 
-					<div class="release release-even row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-even row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://hyperfollow.com/dgtheartist/skate" target="_blank">
 								<img src="static/img/cover-art/skate.jpg" class="img-fluid">
@@ -382,7 +367,7 @@
 						</div>
 					</div>
 					
-					<div class="release release-odd row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-odd row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://hyperfollow.com/dgtheartist/get-money" target="_blank">
 								<img src="static/img/cover-art/get-money.jpg" class="img-fluid">
@@ -397,7 +382,7 @@
 						</div>
 					</div>
 
-					<div class="release release-even row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-even row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://hyperfollow.com/dgtheartist/five-thousand-dollar-boat" target="_blank">
 								<img src="static/img/cover-art/five-thousand-dollar-boat.jpg" class="img-fluid">
@@ -412,7 +397,7 @@
 						</div>
 					</div>
 					
-					<div class="release release-odd row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-odd row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://hyperfollow.com/dgtheartist/ego-death" target="_blank">
 								<img src="static/img/cover-art/ego-death.jpg" class="img-fluid">
@@ -422,12 +407,14 @@
 							<h1><a href="https://hyperfollow.com/dgtheartist/ego-death" target="_blank">Ego Death</a></h1>
 							<h4 class="py-2">Album ~ 2023</h4>
 							<p class="lead">
-								Where "Hello World" was an introduction, "Ego Death" is an immersion – an intimate exploration of the conscience, delving deep into the subconscious realm in a desperate search for peace. This is a concept album that follows DG the Artist through a quest to kill his ego and live happily in the moment. From the egoistic intro "SPACESHIP" to the heartfelt finale of "Still Alive," with plenty of memorable moments and featured artists along the way, "Ego Death" is a truly cohesive and unforgettable piece of art.
+								Where "Hello World" was an introduction, "Ego Death" is an immersion – an intimate exploration of the conscience, delving deep into the subconscious realm in a desperate search for peace.
+								<br><br>
+								"Ego Death" is a concept album that follows DG the Artist through a quest to kill his ego and live happily in the moment. From the egoistic intro "SPACESHIP" to the heartfelt finale of "Still Alive," with plenty of memorable moments and featured artists along the way, "Ego Death" is a truly cohesive and unforgettable piece of art.
 							</p>
 						</div>
 					</div>
 
-					<div class="release release-even row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-even row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://hyperfollow.com/dgtheartist/hello-world" target="_blank">
 								<img src="static/img/cover-art/hello-world.jpg" class="img-fluid">
@@ -446,11 +433,11 @@
 
 			<div id="live" class="fade-in-element anchor mb-5 pb-2">
 
-				<div class="container pb-3">
+				<div class="container pb-3 border-bottom">
 					
 					<h1 class="sub-header display-4 mb-5">Live Shows</h1>
 
-					<div class="release release-odd row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-odd row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://partiful.com/e/v2VW12Rlvfx6p5hmxlDF" target="_blank">
 								<img src="static/img/show-art/i-quit-my-day-job.png" class="img-fluid">
@@ -464,7 +451,7 @@
 						</div>
 					</div>
 
-					<div class="release release-even row text-center align-middle py-4 my-3 rounded">
+					<div class="release release-even row text-center align-middle py-4 my-2 border rounded">
 						<div class="col-md-4">
 							<a href="https://www.etix.com/ticket/p/36851980/dg-the-artist-jeyv%C3%B8-raleigh-kings" target="_blank">
 								<img src="static/img/show-art/kings-raleigh.png" class="img-fluid">
@@ -515,7 +502,14 @@
 				</div>
 			</div>
 
-			<div id="gallery" class="fade-in-element carousel slide" data-ride="carousel">
+			<div id="contact" class="fade-in-element anchor">
+				<div class="container pb-3">
+					<h1 class="sub-header display-4 mb-5">Contact</h1>
+					<p class="lead">For booking, collaboration requests, and other business inquiries: <a href="mailto:theartistdg@gmail.com">theartistdg@gmail.com</a></p>
+				</div>
+			</div>
+
+			<div id="carousel" class="fade-in-element carousel slide" data-ride="carousel">
 				<div class="carousel-inner">
 					<div class="carousel-item active">
 						<img class="d-block w-100" src="static/img/gallery-1.jpg" alt="First slide">
@@ -535,24 +529,12 @@
 					<div class="carousel-item">
 						<img class="d-block w-100" src="static/img/gallery-6.jpg" alt="Sixth slide">
 					</div>
-					<div class="carousel-item">
-						<img class="d-block w-100" src="static/img/gallery-7.jpg" alt="Sixth slide">
-					</div>
-					<div class="carousel-item">
-						<img class="d-block w-100" src="static/img/gallery-8.jpg" alt="Sixth slide">
-					</div>
-					<div class="carousel-item">
-						<img class="d-block w-100" src="static/img/gallery-9.jpg" alt="Sixth slide">
-					</div>
-					<div class="carousel-item">
-						<img class="d-block w-100" src="static/img/gallery-10.jpg" alt="Sixth slide">
-					</div>
 				</div>
-				<a class="carousel-control-prev" href="#gallery" role="button" data-slide="prev">
+				<a class="carousel-control-prev" href="#carousel" role="button" data-slide="prev">
 					<span class="carousel-control-prev-icon" aria-hidden="true"></span>
 					<span class="sr-only">Previous</span>
 				</a>
-				<a class="carousel-control-next" href="#gallery" role="button" data-slide="next">
+				<a class="carousel-control-next" href="#carousel" role="button" data-slide="next">
 					<span class="carousel-control-next-icon" aria-hidden="true"></span>
 					<span class="sr-only">Next</span>
 				</a>
@@ -560,14 +542,8 @@
 		</main>
 
 		<footer class="footer">
-			<div class="container d-flex flex-wrap justify-content-between align-items-center">
-				<span>
-					Booking and other business inquiries: <a href="mailto:theartistdg@gmail.com">theartistdg@gmail.com</a>
-				</span>
-				
-				<span>
-					Looking for the old DGCubes.com? <a href="pages/about">Click here.</a>
-				</span>
+			<div class="container">
+				<span class="text-muted"><a href="https://www.youtube.com/DGtheArtist" target="_blank">DG the Artist</a> - a website by Daniel Goodman. Looking for the old DGCubes.com? <a href="pages/about">Click here.</a></span>
 			</div>
 		</footer>
 
