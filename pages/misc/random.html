@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<head>
+</head>
+<html>
+    <body>
+        <h1 id="output"></h1>
+    </body>
+    <script>
+        var options = ["RaRe", "RaP", "RoSe", "PoP", "PooR", "PasS", "SiP", "SuS", "SiR"];
+        var print = "";
+        for (var i = 0; i < 6; i++) {
+            print += options[Math.floor(Math.random() * 9)] + " ";
+        }
+        document.getElementById("output").innerHTML = print;
+    </script>
+</html>
